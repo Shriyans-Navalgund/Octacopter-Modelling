@@ -1,0 +1,52 @@
+%% Cine66 Thrust Plots
+% close all
+% Load thrust data from a file
+% To improve accuracy of model, need to generate more datapoints from
+% thrust test
+thrustData = load('Cine66 Thrust Params.mat');
+%% Datasheet Plots
+% RPM vs Thrust (g)
+figure('Name','RPM-Thrust_Kg')
+plot(thrustData.RPM, thrustData.Thrust_g_./1000,'Marker','*');
+ax = gca;
+ax.XAxis.Exponent = 0;
+xlabel('RPM');
+ylabel('Thrust (Kg)');
+title('RPM vs Thrust (Kg)');
+grid on;
+
+% RPM vs Thrust (N)
+figure('Name','RPM-Thrust_N')
+plot(thrustData.RPM, thrustData.Thrust_N_,'Marker','*');
+ax = gca;
+ax.XAxis.Exponent = 0;
+xlabel('RPM');
+ylabel('Thrust (N)');
+title('RPM vs Thrust (N)');
+grid on;
+
+%% Saturation Limits
+RPM_max = 15000;
+RPM_min = 0;
+
+%%
+% Need to calculate Tau_ESC from motor testing
+% Time taken to reach 63.2% value in step change
+Tau_ESC = 0.15;
+
+% out = sim("Thrust_Model.slx");
+
+
+% %% Simulation Plots
+% 
+% figure('Name','RPM-Thrust_Kg_Sim')
+% plot(out.simout.Time, out.simout.Data(:)./1000,'Marker','*','LineStyle','--');
+% hold on
+% plot(out.simout1.Time, out.simout1.Data(:)./1000,'Marker','o','LineStyle','-.');
+% ax = gca;
+% ax.XAxis.Exponent = 0;
+% xlabel('Time (s)');
+% ylabel('Thrust (Kg)');
+% title('Thrust (Kg)')
+% legend('Integrator','Transfer Fcn','Location','best')
+% grid on;
