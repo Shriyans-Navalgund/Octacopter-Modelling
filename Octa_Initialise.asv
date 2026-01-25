@@ -1,10 +1,10 @@
 %% Iitialisation Script for Quadcopter dynamics
-% clear all
+
 
 % Define the geometric parameters for the quadcopter
 I_xx = 0.35; % Moment of inertia around x-axis (kg-m^2)
 I_yy = 0.35; % Moment of inertia around y-axis (kg-m^2)
-I_zz = 0.67; % Moment of inertia around z-axis (kg-m^2)
+I_zz = 0.6; % Moment of inertia around z-axis (kg-m^2)
 I_xy = 0; % Moment of inertia around x-y plane (kg-m^2)
 I_xz = 0; % Moment of inertia around x-z plane (kg-m^2)
 I_yz = 0; % Moment of inertia around y-z plane (kg-m^2)
@@ -24,14 +24,14 @@ l_arm7 = [l*cosd(90) l*sind(90) 0]; % Arm 7
 l_arm8 = [l*cosd(45) l*sind(45) 0]; % Arm 8
 
 
-m = 6.71; % Mass of the quadcopter (kg) % Old Mass = 6.71kg
+m = 6.31; % Mass of the quadcopter (kg) % Old Mass = 6.71kg
 x_cg = 0;   % Center of gravity in x-axis (m)
 y_cg = 0;   % Center of gravity in y-axis (m)
 z_cg = 0.1; % Center of gravity in z-axis (m)
 g = 9.81; % Acceleration due to gravity, +/- considered in model as used
-Drag_on = 1; % Enable Drag force in model
+Drag_on = 0; % Enable Drag force in model
 Alt = 600; % Starting height of the Sea level (m)
-h = Alt+10; % Starting height of the drone from Sea level (m)
+h = Alt; % Starting height of the drone from Sea level (m)
 k = 6500; % Landing Gear Spring constant N/m
 c = -500; % 7Landing Gear Spring Damping constant  Ns/m
 rpm2rad_s = pi/30; % Covert RPM to rad/s
@@ -55,16 +55,16 @@ k_D = [0.05, 0.05, 0.15];
 
 load('thrustData.mat'); % Load motor lookup data
 
-load('input.mat');
+inp = load('input.mat');
 fs = 10;
-numSamples = size(input(:,1));
-TimeVector = seconds(0:numSamples(1,1)-1)' / fs;
+numSamples = size(inp(:,1));
+TimeVector = seconds(0:numSamples-1)' / Fs;
 % Convert to timetable
-TS = array2timetable(input, 'RowTimes', TimeVector);
+TS = array2timetable(inp, 'RowTimes', TimeVector);
 
 %{ These values are self set to limit region of operation in dynamics, 
 % range can be extended based on test data available %}
-RPM_max = 17668; % Maximum RPM of motor (rev/min), currently scales input 
+RPM_max = 16000; % Maximum RPM of motor (rev/min), currently scales input 
 RPM_min = 0; % Minimum RPM of motor (rev/min)
 Thrust_max = 20; % Max Thrust in N
 Input_max = 1; % limits high input range
