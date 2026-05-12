@@ -160,6 +160,12 @@ p_dot_dot_0 = 0; % Roll acceleration Init (rad/s^2)
 q_dot_dot_0 = 0; % Pitch acceleration Init (rad/s^2)
 r_dot_dot_0 = 0; % Yaw acceleration Init (rad/s^2)
 
+% Input Commands
+Roll_In_0_1 = 0;
+Pitch_In_0_1 = 0;
+Thrust_In_0_1 = 0.65;
+Yaw_In_0_1 = 0;
+
 %% Simulation
 
 % sim("Thrust_Model.slx")
