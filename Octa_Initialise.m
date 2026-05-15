@@ -49,6 +49,9 @@ Rho = 1.225; % Air Density (kg/m^3)
 
 k_q = (Cp*Rho*(D)^5)/(8*(pi)^3);
 
+% D = k_d*u*u
+% k_D - Drag Coeffecient in 3 axis X Y Z
+
 k_D = [0.05, 0.05, 0.15];
 
 % Motor
@@ -111,56 +114,87 @@ Tau_ESC7 = 0.15; % ESC 7
 Tau_ESC8 = 0.15; % ESC 8
 
 % Inital RPM of motor (rev/min)
-w1_0 = 0; % Motor 1
-w2_0 = 0; % Motor 2
-w3_0 = 0; % Motor 3
-w4_0 = 0; % Motor 4
-w5_0 = 0; % Motor 5
-w6_0 = 0; % Motor 6
-w7_0 = 0; % Motor 7
-w8_0 = 0; % Motor 8
+w1_0 = 0; % Motor 1 Init RPM
+w2_0 = 0; % Motor 2 Init RPM
+w3_0 = 0; % Motor 3 Init RPM
+w4_0 = 0; % Motor 4 Init RPM
+w5_0 = 0; % Motor 5 Init RPM
+w6_0 = 0; % Motor 6 Init RPM
+w7_0 = 0; % Motor 7 Init RPM
+w8_0 = 0; % Motor 8 Init RPM
 
 %% initialize States
 
-% Euler Angles
-phi_0 = 0; % Roll Init (rad)
-theta_0 = 0; % Pitch Init (rad)
-psi_0 = 0; % Yaw Init (rad)
+% Body Frame
+% This rotates the drone relative to its current body orientation
 
-% Euler Rates
-phi_dot_0 = 0; % Roll rate Init (rad/s)
-theta_dot_0 = 0; % Pitch rate  Init (rad/s)
-psi_dot_0 = 0; % Yaw rate Init (rad/s)
+% Intial Euler Angles - Body frame
+phi_0 = deg2rad(10); % Roll Init (rad)
+theta_0 = deg2rad(0); % Pitch Init (rad)
+psi_0 = deg2rad(0); % Yaw Init (rad)
+
+% Intial  Euler Rates - Body frame
+p_0 = deg2rad(0); % Roll rate Init (rad/s)
+q_0 = deg2rad(0); % Pitch rate Init (rad/s)
+r_0 = deg2rad(0); % Yaw rate Init (rad/s)
+
+% Rotation matrix from inertial to Body
+R_b2i = [ ...
+    cos(r_0)*cos(q_0), ...
+    cos(r_0)*sin(q_0)*sin(p_0) - sin(r_0)*cos(p_0), ...
+    cos(r_0)*sin(q_0)*cos(p_0) + sin(r_0)*sin(p_0);
+
+    sin(r_0)*cos(q_0), ...
+    sin(r_0)*sin(q_0)*sin(p_0) + cos(r_0)*cos(p_0), ...
+    sin(r_0)*sin(q_0)*cos(p_0) - cos(r_0)*sin(p_0);
+
+    -sin(q_0), ...
+    cos(q_0)*sin(p_0), ...
+    cos(q_0)*cos(p_0)
+];
+phi_theta_psi_dot_0 = R_b2i*[p_dot_0;q_dot_0;r_dot_0;];
+
+% Intial Euler Rates - Inertial frame
+phi_dot_0 = phi_theta_psi_dot_0(1); % Roll rate Init (rad/s)
+theta_dot_0 = phi_theta_psi_dot_0(2); % Pitch rate  Init (rad/s)
+psi_dot_0 = phi_theta_psi_dot_0(3); % Yaw rate Init (rad/s)
 
 % Euler Angle Integration state limits
-phi_upper = pi;
-phi_lower = -pi;
-theta_upper = pi/2;
-theta_lower = -pi/2;
-psi_upper = pi;
-psi_lower = -pi;
+phi_upper = deg2rad(180);
+phi_lower = deg2rad(-180);
+theta_upper = deg2rad(90);
+theta_lower = deg2rad(-90);
+psi_upper = deg2rad(360);
+psi_lower = deg2rad(0);
 
-% Initial Position - Integrator
-u_0 = 0; % X Init (m)
-v_0 = 0; % Y Init (m)
-w_0 = h; % Z Init (m)
+% Initial Position - Inertial Frame 
+x_0 = 0; % X Init (m)
+y_0 = 0; % Y Init (m)
+z_0 = h; % Z Init (m)
 
-% Angular Velocity
-p_0 = 0; % Roll rate Init (rad/s)
-q_0 = 0; % Pitch rate Init (rad/s)
-r_0 = 0; % Yaw rate Init (rad/s)
+% Linear Velocity - Body Frame
+u_0_b = 0; % X Velocity Init (m/s^2)
+v_0_b = 0; % Y Velocity Init (m/s^2)
+w_0_b = 0; % Z Velocity Init (m/s^2)
 
-% Linear Acceleration
+u_v_w_0 = R_b2i*[u_0_b;v_0_b;w_0_b];
+
+% Linear Velocity - Inertial Frame
+u_0 = u_v_w_0(1); % X Velocity Init (m/s^2)
+v_0 = u_v_w_0(2); % Y Velocity Init (m/s^2)
+w_0 = u_v_w_0(3); % Z Velocity Init (m/s^2)
+
+% Linear Acceleration  - Inertial Frame Not fed into model ,future force addiion feature
 u_dot_0 = 0; % X Acceleration Init (m/s^2)
 v_dot_0 = 0; % Y Acceleration Init (m/s^2)
 w_dot_0 = 0; % Z Acceleration Init (m/s^2)
 
-% Angular Acceleration
+% Angular Acceleration - Inertial Frame Not fed into model ,future rot. force addiion feature
 p_dot_dot_0 = 0; % Roll acceleration Init (rad/s^2)
 q_dot_dot_0 = 0; % Pitch acceleration Init (rad/s^2)
 r_dot_dot_0 = 0; % Yaw acceleration Init (rad/s^2)
 
-% Input Commands
+% Input Commands - from control, not operational other than thrust
 Roll_In_0_1 = 0;
 Pitch_In_0_1 = 0;
 Thrust_In_0_1 = 0.65;
